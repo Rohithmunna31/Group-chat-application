@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.1/axios.min.js"></script>
+    <title>User Signup page</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      form {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        width: 350px;
+        height: 400px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      input {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #59b196;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+
+      button {
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <form>
+      <label for="username"> Enter username </label>
+      <input type="text" id="username" />
+
+      <label for="email">Enter email </label>
+      <input type="email" id="email" />
+
+      <label for="mobileno"> Enter mobile no.</label>
+      <input type="number" id="mobileno" />
+
+      <label for="password">Enter password</label>
+      <input type="password" id="password" />
+
+      <button type="submit" id="submit">Submit</button>
+
+      <br />
+
+      <div id="displayerror"></div>
+    </form>
+
+    <script>
+      console.log("hello");
+
+      const btn = document.getElementById("submit");
+      if (btn) {
+        btn.addEventListener("click", (e) => {
+          e.preventDefault();
+          const usernameInput = document.getElementById("username");
+          const emailInput = document.getElementById("email");
+          const mobilenoInput = document.getElementById("mobileno");
+          const passwordInput = document.getElementById("password");
+          const username = usernameInput.value;
+          const email = emailInput.value;
+          const mobileno = mobilenoInput.value;
+          const password = passwordInput.value;
+          axios
+            .post("/user/signup", {
+              username,
+              email,
+              mobileno,
+              password,
+            })
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((err) => {
+              document.getElementById("displayerror").innerHTML +=
+                "<span style='color: red;'> User already exists </span>";
+            });
+        });
+      }
+    </script>
+  </body>
+</html>
