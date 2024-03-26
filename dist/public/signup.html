@@ -72,7 +72,7 @@
 
       <br />
 
-      <div id="displayerror"></div>
+      <div id="display"></div>
     </form>
 
     <script>
@@ -90,6 +90,7 @@
           const email = emailInput.value;
           const mobileno = mobilenoInput.value;
           const password = passwordInput.value;
+
           axios
             .post("/user/signup", {
               username,
@@ -99,9 +100,11 @@
             })
             .then((res) => {
               console.log(res);
+              document.getElementById("display").innerHTML +=
+                "<span style='color: green;'> User Signup successsful </span>";
             })
             .catch((err) => {
-              document.getElementById("displayerror").innerHTML +=
+              document.getElementById("display").innerHTML +=
                 "<span style='color: red;'> User already exists </span>";
             });
         });

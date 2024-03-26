@@ -6,7 +6,11 @@ import signupRoutes from "./routes/userRoutes";
 
 import sequelize from "./util/database";
 
+import cors from "cors";
+
 const app = express();
+
+app.use(cors());
 
 app.use(bodyParser.json());
 
