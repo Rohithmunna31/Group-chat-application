@@ -101,13 +101,16 @@
           })
           .then((res) => {
             console.log(res.data);
+            document.getElementById("display").innerHTML = res.data.message;
             localStorage.setItem("token", res.data.token);
             alert("User login successfull");
+            window.location.href = "/groupchat";
           })
           .catch((err) => {
             console.log("iam i here");
+            console.log(err);
             document.getElementById("display").innerHTML =
-              "<p style='color: red;'>User login failed</p>";
+              err.response.data.message;
           });
 
         document.getElementById("gotosignup").addEventListener("click", (e) => {

@@ -58,14 +58,12 @@ user.getUserlogin = (req, res) => {
     res.sendFile(path_1.default.join(__dirname, "../public/login.html"));
 };
 user.postUserlogin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("entered post User login");
     try {
         const { password, email } = req.body;
         const find = yield user_1.default.findOne({ where: { email: email } });
         if (find) {
             bcrypt_1.default.compare(password, find.dataValues.password, (err, data) => {
                 if (err) {
-                    console.log("in bcrypt error");
                     return res.status(400).json({
                         success: false,
                         message: "err occured logging in",
@@ -79,19 +77,17 @@ user.postUserlogin = (req, res) => __awaiter(void 0, void 0, void 0, function* (
                     });
                 }
                 else {
-                    console.log("in else case of password matched");
-                    return res.status(400).json({
+                    res.status(401).json({
                         success: false,
-                        message: "err occured logging in",
+                        message: "User not Authorized ",
                     });
                 }
             });
         }
         else {
-            console.log("in else of find");
             return res
-                .status(400)
-                .json({ success: true, message: "email Does not exist try signup" });
+                .status(404)
+                .json({ success: true, message: "User not found " });
         }
     }
     catch (err) {

@@ -81,8 +81,6 @@ user.postUserlogin = async (req: Request, res: Response) => {
             ),
           });
         } else {
-          console.log("in else case of password matched");
-
           res.status(401).json({
             success: false,
             message: "User not Authorized ",
@@ -90,11 +88,9 @@ user.postUserlogin = async (req: Request, res: Response) => {
         }
       });
     } else {
-      console.log("in else of find");
-
       return res
         .status(404)
-        .json({ success: true, message: "email Does not exist try signup" });
+        .json({ success: true, message: "User not found " });
     }
   } catch (err) {
     console.log(err);
