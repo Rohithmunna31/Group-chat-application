@@ -2,7 +2,7 @@ import express from "express";
 
 import bodyParser from "body-parser";
 
-import signupRoutes from "./routes/userRoutes";
+import userRoutes from "./routes/userRoutes";
 
 import sequelize from "./util/database";
 
@@ -14,7 +14,7 @@ app.use(cors());
 
 app.use(bodyParser.json());
 
-app.use("/user", signupRoutes);
+app.use("/user", userRoutes);
 
 app.get("/", (req, res) => {
   res

@@ -7,7 +7,9 @@ const express_1 = __importDefault(require("express"));
 const body_parser_1 = __importDefault(require("body-parser"));
 const userRoutes_1 = __importDefault(require("./routes/userRoutes"));
 const database_1 = __importDefault(require("./util/database"));
+const cors_1 = __importDefault(require("cors"));
 const app = (0, express_1.default)();
+app.use((0, cors_1.default)());
 app.use(body_parser_1.default.json());
 app.use("/user", userRoutes_1.default);
 app.get("/", (req, res) => {

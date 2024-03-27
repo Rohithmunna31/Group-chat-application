@@ -10,7 +10,10 @@ document.getElementById("submit").addEventListener("click", (e) => {
       password,
     })
     .then((res) => {
-      alert("User login successfull");
+      console.log(res);
+      console.log("iam here in res");
+      console.log(res.data);
+    //   alert("User login successfull");
     })
     .catch((err) => {
       document.getElementById("display").innerHTML +=

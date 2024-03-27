@@ -6,6 +6,12 @@ import bcrpyt from "bcrypt";
 
 import { Request, Response } from "express";
 
+import dotenv from "dotenv";
+
+import jwt from "jsonwebtoken";
+
+dotenv.config();
+
 const user: any = {};
 
 user.getUsersignup = (req: Request, res: Response) => {
@@ -24,13 +30,20 @@ user.postUsersignup = async (req: Request, res: Response) => {
         .json({ success: false, message: "User already exists try loggin" });
     }
 
-    const hashedPassword = await bcrpyt.hash(req.body.password, 10);
-
-    const createUser = await users.create({
-      username: req.body.username,
-      email: req.body.email,
-      mobileno: req.body.mobileno,
-      password: hashedPassword,
+    bcrpyt.hash(req.body.password, 10, async (err, hash) => {
+      if (err) {
+        return res
+          .status(400)
+          .json({ success: false, message: "error signup user" });
+      }
+      if (hash) {
+        const createUser = await users.create({
+          username: req.body.username,
+          email: req.body.email,
+          mobileno: req.body.mobileno,
+          password: hash,
+        });
+      }
     });
   } catch (err) {
     console.log(err);
@@ -39,5 +52,62 @@ user.postUsersignup = async (req: Request, res: Response) => {
   }
   res.status(200).json({ success: true, message: "signup successfull" });
 };
+
+user.getUserlogin = (req: Request, res: Response) => {
+  res.sendFile(path.join(__dirname, "../public/login.html"));
+};
+
+user.postUserlogin = async (req: Request, res: Response) => {
+  try {
+    const { password, email } = req.body;
+    const find = await users.findOne({ where: { email: email } });
+
+    if (find) {
+      bcrpyt.compare(password, find.dataValues.password, (err, data) => {
+        if (err) {
+          return res.status(400).json({
+            success: false,
+            message: "err occured logging in",
+          });
+        }
+        if (data === true) {
+          console.log("in paswword matched");
+
+          return res.status(200).json({
+            message: "password matched succesfully",
+            token: generateacesstoken(
+              find.dataValues.id,
+              find.dataValues.username
+            ),
+          });
+        } else {
+          console.log("in else case of password matched");
+
+          res.status(400).json({
+            success: false,
+            message: "User not Authorized ",
+          });
+        }
+      });
+    } else {
+      console.log("in else of find");
+
+      return res
+        .status(400)
+        .json({ success: true, message: "email Does not exist try signup" });
+    }
+  } catch (err) {
+    console.log(err);
+    console.log("in try catch error");
+
+    return res
+      .status(400)
+      .json({ success: true, message: "an error occured loggin in" });
+  }
+};
+
+function generateacesstoken(id: number, username: string) {
+  return jwt.sign({ userId: id, username: username }, "secretkey");
+}
 
 export default user;

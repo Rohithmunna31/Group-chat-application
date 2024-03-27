@@ -52,6 +52,18 @@
       button:hover {
         background-color: #0056b3;
       }
+      button#gotologin {
+        background: none;
+        color: #007bff;
+        border: none;
+        padding: 0;
+        font-size: 16px;
+        text-decoration: underline;
+        cursor: pointer;
+      }
+      button#gotologin:hover {
+        color: #0056b3;
+      }
     </style>
   </head>
   <body>
@@ -71,6 +83,8 @@
       <button type="submit" id="submit">Submit</button>
 
       <br />
+
+      <button type="button" id="gotologin">Already user got to login</button>
 
       <div id="display"></div>
     </form>
@@ -109,6 +123,10 @@
             });
         });
       }
+
+      document.getElementById("gotologin").addEventListener("click", (e) => {
+        window.location.href = "/user/login";
+      });
     </script>
   </body>
 </html>

@@ -4,8 +4,69 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.1/axios.min.js"></script>
-    <link rel="stylesheet" href="login.css" />
+    <!-- <link rel="stylesheet" href="/login.css" /> -->
     <title>User login page</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f5f3;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      form {
+        background-color: #dbe4ba;
+        padding: 60px; /* Increased padding */
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        width: 320px; /* Adjusted width */
+        margin-top: -50px; /* Moved the form up */
+      }
+
+      label {
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      input {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+
+      button {
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #0056b3;
+      }
+      button#gotosignup {
+        background: none;
+        color: #007bff;
+        border: none;
+        padding: 0;
+        font-size: 16px;
+        text-decoration: underline;
+        cursor: pointer;
+      }
+
+      button#gotosignup:hover {
+        color: #0056b3;
+      }
+    </style>
   </head>
   <body>
     <form>
@@ -25,6 +86,34 @@
       </button>
       <div id="display"></div>
     </form>
-    <script src="login.js"></script>
+    <!-- <script src="/login.js"></script> -->
+    <script>
+      document.getElementById("submit").addEventListener("click", (e) => {
+        e.preventDefault();
+
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+        axios
+          .post("/user/login", {
+            email,
+            password,
+          })
+          .then((res) => {
+            console.log(res.data);
+            localStorage.setItem("token", res.data.token);
+            alert("User login successfull");
+          })
+          .catch((err) => {
+            console.log("iam i here");
+            document.getElementById("display").innerHTML =
+              "<p style='color: red;'>User login failed</p>";
+          });
+
+        document.getElementById("gotosignup").addEventListener("click", (e) => {
+          window.location.href = "/user/signup";
+        });
+      });
+    </script>
   </body>
 </html>
