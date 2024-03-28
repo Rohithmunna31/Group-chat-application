@@ -104,7 +104,7 @@
             document.getElementById("display").innerHTML = res.data.message;
             localStorage.setItem("token", res.data.token);
             alert("User login successfull");
-            window.location.href = "/groupchat";
+            window.location.href = "/group/chat";
           })
           .catch((err) => {
             console.log("iam i here");

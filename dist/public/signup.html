@@ -116,6 +116,8 @@
               console.log(res);
               document.getElementById("display").innerHTML +=
                 "<span style='color: green;'> User Signup successsful </span>";
+              console.log("redirecting to login");
+              window.location.href = "/user/login";
             })
             .catch((err) => {
               document.getElementById("display").innerHTML +=

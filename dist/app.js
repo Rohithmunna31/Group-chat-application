@@ -6,17 +6,23 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const body_parser_1 = __importDefault(require("body-parser"));
 const userRoutes_1 = __importDefault(require("./routes/userRoutes"));
+const chatRoutes_1 = __importDefault(require("./routes/chatRoutes"));
 const database_1 = __importDefault(require("./util/database"));
 const cors_1 = __importDefault(require("cors"));
+const user_1 = __importDefault(require("./models/user"));
+const messages_1 = __importDefault(require("./models/messages"));
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
 app.use(body_parser_1.default.json());
 app.use("/user", userRoutes_1.default);
+app.use("/group", chatRoutes_1.default);
 app.get("/", (req, res) => {
     res
         .status(200)
         .json({ success: "true", message: "Successfully done running typescript" });
 });
+user_1.default.hasMany(messages_1.default);
+messages_1.default.belongsTo(user_1.default);
 database_1.default
     .sync()
     .then((res) => {

@@ -9,7 +9,7 @@ document.getElementById("sendmessage").addEventListener("click", (e) => {
   axios
     .post("/groupchat", {
       message,
-      token,
+      Authorization: token,
     })
     .then((res) => {
       console.log(res);
