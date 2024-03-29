@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const path_1 = __importDefault(require("path"));
 const messages_1 = __importDefault(require("../models/messages"));
+const user_1 = __importDefault(require("../models/user"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const chats = {};
@@ -33,6 +34,28 @@ chats.postUserchats = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
     catch (err) {
         res.status(400).json({ success: false, message: "cannot send message" });
+    }
+});
+chats.postGroupchats = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const allMessages = yield messages_1.default.findAll({
+            include: {
+                model: user_1.default,
+                attributes: ["username"],
+            },
+        });
+        const filteredMessages = allMessages.map((message) => {
+            if (message.dataValues.User.dataValues.username == req.user.username) {
+                message.dataValues.User.dataValues.username = "you";
+            }
+            return message;
+        });
+        return res.status(200).json({ success: true, allMessages: allMessages });
+    }
+    catch (err) {
+        console.log(err);
+        console.log("in get group chats error");
+        return res.status(400).json({ success: false });
     }
 });
 exports.default = chats;

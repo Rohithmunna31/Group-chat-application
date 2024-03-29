@@ -10,4 +10,10 @@ router.get("/chat", chatControllers.getUserChat);
 
 router.post("/chat", middleWare.authentication, chatControllers.postUserchats);
 
+router.post(
+  "/chats",
+  middleWare.authentication,
+  chatControllers.postGroupchats
+);
+
 export default router;
