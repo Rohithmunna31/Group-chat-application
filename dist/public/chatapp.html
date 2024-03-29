@@ -87,20 +87,26 @@
 
     <script>
       const token = localStorage.getItem("token");
-      axios
-        .post("http://localhost:3000/group/chats", {
-          Authorization: token,
-        })
-        .then((res) => {
-          console.log(res.data);
-          const allMessages = res.data.allMessages;
 
-          for (let i = 0; i < allMessages.length; i++) {
+      const fetchAndDisplayMessages = () => {
+        axios
+          .post("http://localhost:3000/group/chats", { Authorization: token })
+          .then((res) => {
+            console.log(res.data);
+            const allMessages = res.data.allMessages;
             document.getElementById(
-              "displaymessages"
-            ).innerHTML += `<p> ${allMessages[i].User.username} : ${allMessages[i].message} </p>`;
-          }
-        });
+                "displaymessages"
+              ).innerHTML = "";
+            for (let i = 0; i < allMessages.length; i++) {
+              document.getElementById(
+                "displaymessages"
+              ).innerHTML += `<p> ${allMessages[i].User.username} : ${allMessages[i].message} </p>`;
+            }
+          });
+      };
+
+      fetchAndDisplayMessages();
+      setInterval(fetchAndDisplayMessages, 1000);
 
       document.getElementById("sendmessage").addEventListener("click", (e) => {
         e.preventDefault();
