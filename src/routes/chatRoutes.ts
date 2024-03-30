@@ -11,7 +11,7 @@ router.get("/chat", chatControllers.getUserChat);
 router.post("/chat", middleWare.authentication, chatControllers.postUserchats);
 
 router.post(
-  "/chats",
+  "/chats/:messageid",
   middleWare.authentication,
   chatControllers.postGroupchats
 );

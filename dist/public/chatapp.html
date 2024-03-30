@@ -87,25 +87,54 @@
 
     <script>
       const token = localStorage.getItem("token");
+      let messageid = 0;
+      let localMessages = null;
+      localStorage.setItem("localmessages", localMessages);
 
       const fetchAndDisplayMessages = () => {
         axios
-          .post("http://localhost:3000/group/chats", { Authorization: token })
+          .post(`http://localhost:3000/group/chats/${messageid}`, {
+            Authorization: token,
+          })
           .then((res) => {
+            console.log("in fetch and display functions");
+            let localMessages = localStorage.getItem("localMessages");
+            localMessages = JSON.parse(localMessages);
             console.log(res.data);
             const allMessages = res.data.allMessages;
-            document.getElementById(
+            document.getElementById("displaymessages").innerHTML = "";
+
+            for (let i = 0; i < localMessages.length; i++) {
+              document.getElementById(
                 "displaymessages"
-              ).innerHTML = "";
+              ).innerHTML += `<p> ${localMessages[i].User.username} : ${localMessages[i].message} </p>`;
+              console.log("in local storage messages");
+            }
+
             for (let i = 0; i < allMessages.length; i++) {
               document.getElementById(
                 "displaymessages"
               ).innerHTML += `<p> ${allMessages[i].User.username} : ${allMessages[i].message} </p>`;
+              console.log("in backend messages");
             }
+
+            localStorage.setItem(
+              "localMessages",
+              JSON.stringify(localMessages.concat(allMessages))
+            );
+
+            console.log(localStorage.getItem("localMessages"));
+            let Messages = localStorage.getItem("localMessages");
+            Messages = JSON.parse(Messages);
+            messageid = Messages.length;
+            console.log("messageid", messageid);
           });
       };
 
-      fetchAndDisplayMessages();
+      let Messages = localStorage.getItem("localMessages");
+      Messages = JSON.parse(Messages);
+      messageid = Messages.length;
+      console.log("messageid", messageid);
       setInterval(fetchAndDisplayMessages, 1000);
 
       document.getElementById("sendmessage").addEventListener("click", (e) => {

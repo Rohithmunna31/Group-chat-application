@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const path_1 = __importDefault(require("path"));
 const messages_1 = __importDefault(require("../models/messages"));
 const user_1 = __importDefault(require("../models/user"));
+const sequelize_1 = require("sequelize");
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const chats = {};
@@ -38,13 +39,23 @@ chats.postUserchats = (req, res) => __awaiter(void 0, void 0, void 0, function* 
 });
 chats.postGroupchats = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        let messageid = parseInt(req.params.messageid);
+        if (!messageid) {
+            messageid = 0;
+        }
+        console.log(messageid);
         const allMessages = yield messages_1.default.findAll({
             include: {
                 model: user_1.default,
                 attributes: ["username"],
             },
+            where: {
+                id: {
+                    [sequelize_1.Op.gt]: messageid,
+                },
+            },
         });
-        const filteredMessages = allMessages.map((message) => {
+        allMessages.map((message) => {
             if (message.dataValues.User.dataValues.username == req.user.username) {
                 message.dataValues.User.dataValues.username = "you";
             }

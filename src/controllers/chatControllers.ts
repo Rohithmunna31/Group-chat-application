@@ -4,6 +4,8 @@ import messages from "../models/messages";
 
 import users from "../models/user";
 
+import { Op } from "sequelize";
+
 import { Request, Response } from "express";
 
 import dotenv from "dotenv";
@@ -35,14 +37,27 @@ chats.postUserchats = async (req: Request, res: Response) => {
 
 chats.postGroupchats = async (req: Request, res: Response) => {
   try {
-    const allMessages = await messages.findAll({
+    let messageid = parseInt(req.params.messageid);
+
+    if (!messageid) {
+      messageid = 0;
+    }
+
+    console.log(messageid);
+
+    const allMessages: any = await messages.findAll({
       include: {
         model: users,
         attributes: ["username"],
       },
+      where: {
+        id: {
+          [Op.gt]: messageid,
+        },
+      },
     });
 
-    const filteredMessages = allMessages.map((message) => {
+    allMessages.map((message: any) => {
       if (message.dataValues.User.dataValues.username == req.user.username) {
         message.dataValues.User.dataValues.username = "you";
       }
