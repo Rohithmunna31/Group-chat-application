@@ -57,7 +57,7 @@ user.getUserlogin = (req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, "../public/login.html"));
 };
 
-user.postUserlogin = async (req: Request, res: Response) => { 
+user.postUserlogin = async (req: Request, res: Response) => {
   try {
     const { password, email } = req.body;
     const find = await users.findOne({ where: { email: email } });
@@ -100,6 +100,10 @@ user.postUserlogin = async (req: Request, res: Response) => {
       .status(400)
       .json({ success: true, message: "an error occured loggin in" });
   }
+};
+
+user.getUserhome = (req: Request, res: Response) => {
+  res.sendFile(path.join(__dirname, "../public/userhome.html"));
 };
 
 function generateacesstoken(id: number, username: string) {

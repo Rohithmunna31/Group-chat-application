@@ -6,13 +6,19 @@ import userRoutes from "./routes/userRoutes";
 
 import chatRoutes from "./routes/chatRoutes";
 
+import groupRoutes from "./routes/groupRoutes";
+
 import sequelize from "./util/database";
 
 import cors from "cors";
 
-import users from "./models/user";
+import user from "./models/user";
 
-import messages from "./models/messages";
+import message from "./models/messages";
+
+import Group from "./models/usergroups";
+
+import usergrouprelation from "./models/usergrouprelation";
 
 const app = express();
 
@@ -24,14 +30,22 @@ app.use("/user", userRoutes);
 
 app.use("/group", chatRoutes);
 
+app.use("/group", groupRoutes);
+
 app.get("/", (req, res) => {
   res
     .status(200)
     .json({ success: "true", message: "Successfully done running typescript" });
 });
 
-users.hasMany(messages);
-messages.belongsTo(users);
+user.hasMany(message);
+message.belongsTo(user);
+
+message.belongsTo(Group);
+Group.hasMany(message);
+
+user.belongsToMany(Group, { through: usergrouprelation });
+Group.belongsToMany(user, { through: usergrouprelation });
 
 sequelize
   .sync()
@@ -40,5 +54,7 @@ sequelize
     app.listen(process.env.PORT);
   })
   .catch((err) => {
+    console.log(err);
+
     console.log("db connection failed");
   });

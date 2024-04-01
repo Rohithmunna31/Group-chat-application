@@ -25,9 +25,11 @@ chats.getUserChat = (req, res) => {
 chats.postUserchats = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const message = req.body.message;
+        const groupid = req.params.groupid;
         const createMessage = yield messages_1.default.create({
             message: message,
             UserId: req.user.id,
+            usergroupId: groupid,
         });
         return res
             .status(200)

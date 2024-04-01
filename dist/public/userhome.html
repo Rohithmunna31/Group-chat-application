@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.1/axios.min.js"></script>
+    <title>Group Chats Application</title>
+    <!-- <link rel="stylesheet" href="userhome.css" /> -->
+    <style>
+      /* styles.css */
+
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+      main {
+        flex-grow: 1; /* Ensure main content takes remaining space */
+      }
+
+      header {
+        background-color: #745656;
+        color: #fff;
+        padding: 20px;
+        text-align: center;
+        border-radius: 3.2rem;
+      }
+
+      .buttons-container {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+      }
+
+      button {
+        padding: 10px 20px;
+        margin-left: 10px;
+        font-size: 16px;
+        cursor: pointer;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+      }
+
+      button:hover {
+        background-color: #0056b3;
+      }
+      main h1 {
+        margin-left: 100px;
+      }
+
+      footer {
+        background-color: #88815b;
+        color: #fff;
+        padding: 20px;
+        text-align: center;
+        position: fixed;
+        bottom: 0;
+        width: 97%;
+        border-radius: 50px;
+        height: 6.2rem;
+      }
+
+      .contact-info {
+        margin: 10px 0;
+        font-size: 16px;
+      }
+      .hidden {
+        display: none;
+      }
+
+      /* Position the aside on the right side below the header */
+      aside {
+        position: fixed;
+        top: 120px; /* Adjust as needed */
+        right: 20px; /* Adjust as needed */
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      }
+
+      #exit-btn {
+        display: block; /* Display the exit button as a block element */
+        margin-top: 0.6rem; /* Add margin to create space between buttons */
+        background: none;
+        border: none;
+        font-size: 0.9rem;
+        cursor: pointer;
+        color: #333;
+      }
+
+      #exit-btn:hover {
+        color: #000;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Welcome to Group Chats Application</h1>
+    </header>
+
+    <main>
+      <h1>Groups</h1>
+
+      <div id="groupslist"></div>
+      <!-- Add your group listing or content here -->
+    </main>
+
+    <div class="buttons-container">
+      <button id="create-group-btn">Create Group</button>
+      <button id="join-group-btn">Join Group</button>
+    </div>
+
+    <footer>
+      <h2>Contact Us</h2>
+      <p class="contact-info">Mobile: +91 7989437566</p>
+      <p class="contact-info">Email: rohithkasna31@gmail.com</p>
+    </footer>
+
+    <aside id="group-form" class="hidden">
+      <label for="groupname">Enter group name</label>
+      <input type="text" id="groupname" />
+      <button id="creategroup">Create group</button>
+      <br />
+      <button id="exit-btn">exit &times;</button>
+      <div id="display"></div>
+    </aside>
+
+    <!-- <script src="userhome.js"></script> -->
+    <script>
+      const token = localStorage.getItem("token");
+      axios
+        .post("/group/getgroups", {
+          Authorization: token,
+        })
+        .then((res) => {
+          console.log(res.data.groups);
+
+          const groupslist = document.getElementById("groupslist");
+
+          groupslist.innerHTML = "";
+
+          res.data.groups.forEach((group) => {
+            const link = document.createElement("a");
+            link.textContent = group.groupname;
+            link.href = `/group/chat/${group.id}`;
+            link.classList.add("group-link");
+            groupslist.appendChild(link);
+            groupslist.appendChild(document.createElement("br"));
+          });
+        })
+        .catch((err) => {
+          console.log(err);
+          document.body.innerHTML = "Error loading groups";
+        });
+
+      document
+        .getElementById("create-group-btn")
+        .addEventListener("click", function () {
+          document.getElementById("group-form").classList.remove("hidden");
+        });
+      document
+        .getElementById("exit-btn")
+        .addEventListener("click", function () {
+          document.getElementById("group-form").classList.add("hidden");
+        });
+
+      document.getElementById("creategroup").addEventListener("click", (e) => {
+        const groupname = document.getElementById("groupname").value;
+
+        axios
+          .post("/group/creategroup", {
+            Authorization: token,
+            groupname: groupname,
+          })
+          .then((res) => {
+            document.getElementById(
+              "display"
+            ).innerHTML = `Group creation successsfull`;
+          })
+          .catch((err) => {
+            document.getElementById(
+              "display"
+            ).innerHTML = `Group creation successsfull`;
+          });
+      });
+    </script>
+  </body>
+</html>

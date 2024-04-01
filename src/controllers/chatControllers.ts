@@ -21,10 +21,12 @@ chats.getUserChat = (req: Request, res: Response) => {
 chats.postUserchats = async (req: Request, res: Response) => {
   try {
     const message = req.body.message;
+    const groupid = req.params.groupid;
 
     const createMessage = await messages.create({
       message: message,
       UserId: req.user.id,
+      usergroupId: groupid,
     });
 
     return res

@@ -70,6 +70,12 @@
         color: #fff;
         border-radius: 5px;
       }
+      aside button {
+        position: fixed;
+        color: #e8edf3;
+        top: 0rem;
+        right: 2rem;
+      }
     </style>
   </head>
   <body>
@@ -77,6 +83,14 @@
 
     <p>You joined</p>
     <div id="displaymessages"></div>
+
+    <aside>
+      <button id="invitelink">Invite Link</button>
+
+      <div id="invitationlink"></div>
+
+      <!-- <button id="hideinvite">Hide invite link</button> -->
+    </aside>
 
     <footer>
       <form>
@@ -86,14 +100,17 @@
     </footer>
 
     <script>
+      const urls = window.location.href.split("/");
+      const groupid = urls[urls.length - 1];
+
       const token = localStorage.getItem("token");
       let messageid = 0;
       let localMessages = null;
-      localStorage.setItem("localmessages", localMessages);
+      localStorage.setItem("localMessages", localMessages);
 
       const fetchAndDisplayMessages = () => {
         axios
-          .post(`http://localhost:3000/group/chats/${messageid}`, {
+          .post(`http://localhost:3000/group/chats/${messageid}${groupid}`, {
             Authorization: token,
           })
           .then((res) => {
@@ -104,38 +121,46 @@
             const allMessages = res.data.allMessages;
             document.getElementById("displaymessages").innerHTML = "";
 
-            for (let i = 0; i < localMessages.length; i++) {
-              document.getElementById(
-                "displaymessages"
-              ).innerHTML += `<p> ${localMessages[i].User.username} : ${localMessages[i].message} </p>`;
-              console.log("in local storage messages");
+            if (localMessages) {
+              for (let i = 0; i < localMessages.length; i++) {
+                document.getElementById(
+                  "displaymessages"
+                ).innerHTML += `<p> ${localMessages[i].User.username} : ${localMessages[i].message} </p>`;
+                console.log("in local storage messages");
+              }
             }
 
-            for (let i = 0; i < allMessages.length; i++) {
-              document.getElementById(
-                "displaymessages"
-              ).innerHTML += `<p> ${allMessages[i].User.username} : ${allMessages[i].message} </p>`;
-              console.log("in backend messages");
+            if (allMessages) {
+              for (let i = 0; i < allMessages.length; i++) {
+                document.getElementById(
+                  "displaymessages"
+                ).innerHTML += `<p> ${allMessages[i].User.username} : ${allMessages[i].message} </p>`;
+                console.log("in backend messages");
+              }
             }
 
-            localStorage.setItem(
-              "localMessages",
-              JSON.stringify(localMessages.concat(allMessages))
-            );
+            if (
+              localMessages &&
+              localMessages.concat(allMessages).length <= 1000
+            ) {
+              localStorage.setItem(
+                "localMessages",
+                JSON.stringify(localMessages.concat(allMessages))
+              );
+            }
 
             console.log(localStorage.getItem("localMessages"));
             let Messages = localStorage.getItem("localMessages");
             Messages = JSON.parse(Messages);
-            messageid = Messages.length;
-            console.log("messageid", messageid);
+
+            if (Messages) {
+              messageid = Messages.length;
+              console.log("messageid", messageid);
+            }
           });
       };
-
-      let Messages = localStorage.getItem("localMessages");
-      Messages = JSON.parse(Messages);
-      messageid = Messages.length;
-      console.log("messageid", messageid);
-      setInterval(fetchAndDisplayMessages, 1000);
+      // setInterval(fetchAndDisplayMessages, 1000);
+      fetchAndDisplayMessages();
 
       document.getElementById("sendmessage").addEventListener("click", (e) => {
         e.preventDefault();
@@ -144,7 +169,7 @@
         const token = localStorage.getItem("token");
 
         axios
-          .post("/group/chat", {
+          .post(`/group/chat/${groupid}`, {
             message,
             Authorization: token,
           })
@@ -158,6 +183,27 @@
             console.log(err);
           });
       });
+
+      document.getElementById("invitelink").addEventListener("click", (e) => {
+        const invitationlink = document.getElementById("invitationlink");
+
+        console.log("am i coming here invite link");
+
+        invitationlink.innerHTML = ` http://localhost:3000/group/joingroup/${groupid}`;
+
+        invitationlink.style.position = "fixed";
+
+        invitationlink.style.top = "5rem";
+        invitationlink.style.right = "2rem";
+      });
+
+      // document
+      //   .getElementById("hideinvitelink")
+      //   .addEventListener("click", (e) => {
+      //     const invitationlink = document.getElementById("invitationlink");
+
+      //     invitationlink.style.visibility = "hidden";
+      //   });
     </script>
   </body>
 </html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.1/axios.min.js"></script>
+    <title>join group</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f3f3f3;
+      }
+
+      form {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        width: 300px;
+      }
+
+      label {
+        margin-bottom: 10px;
+        display: block;
+      }
+
+      input[type="email"],
+      input[type="password"] {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+
+      button {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <form>
+      <label for="email">Enter email</label>
+      <input type="email" id="email" />
+
+      <label for="password">Enter password</label>
+      <input type="password" id="password" />
+
+      <button id="joingroup">Join group</button>
+
+      <div id="display"></div>
+    </form>
+
+    <script>
+      const token = localStorage.getItem("token");
+      document.getElementById("joingroup").addEventListener("click", (e) => {
+        console.log("hello am i in join group button");
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        axios
+          .post(window.location.href, {
+            email: email,
+            password: password,
+          })
+          .then((res) => {
+            console.log("group join success");
+            document.getElementById("display").innerHTML = `group join success`;
+          })
+          .catch((err) => {
+            console.log("group join failed");
+            document.getElementById("display").innerHTML = `group join failed`;
+          });
+      });
+    </script>
+  </body>
+</html>

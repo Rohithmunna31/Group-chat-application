@@ -98,6 +98,9 @@ user.postUserlogin = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             .json({ success: true, message: "an error occured loggin in" });
     }
 });
+user.getUserhome = (req, res) => {
+    res.sendFile(path_1.default.join(__dirname, "../public/userhome.html"));
+};
 function generateacesstoken(id, username) {
     return jsonwebtoken_1.default.sign({ userId: id, username: username }, "secretkey");
 }

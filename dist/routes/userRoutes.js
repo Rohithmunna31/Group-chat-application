@@ -10,4 +10,6 @@ router.get("/signup", userControllers_1.default.getUsersignup);
 router.post("/signup", userControllers_1.default.postUsersignup);
 router.get("/login", userControllers_1.default.getUserlogin);
 router.post("/login", userControllers_1.default.postUserlogin);
+router.get("/home", userControllers_1.default.getUserhome);
+// router.post("/home", userController.postUserhome);
 exports.default = router;
