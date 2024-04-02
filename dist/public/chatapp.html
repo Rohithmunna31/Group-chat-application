@@ -39,12 +39,15 @@
       }
 
       button {
-        background-color: #007bff;
+        background-color: #6994c2;
         color: #fff;
         border: none;
         padding: 10px 20px;
         border-radius: 4px;
         cursor: pointer;
+      }
+      button:hover {
+        background-color: #0056b3;
       }
 
       input[type="submit"]:hover {
@@ -62,6 +65,8 @@
         display: flex;
         flex-direction: column;
         align-items: center;
+        max-width: 60%; /* Adjust the value as needed */
+        margin: 0 auto; /* Center the element horizontally */
       }
       #displaymessages p {
         margin: 5px 0;
@@ -70,17 +75,100 @@
         color: #fff;
         border-radius: 5px;
       }
-      aside button {
+      aside {
         position: fixed;
+        top: 1rem;
+        right: 0.5rem;
+      }
+      aside button #invitelink {
+        margin-bottom: 10px;
         color: #e8edf3;
-        top: 0rem;
+      }
+      #invitationlink {
+        position: absolute;
+        top: 5rem;
         right: 2rem;
+      }
+      #isadmin {
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+      }
+      h3 {
+        position: fixed;
+        top: 2.5rem;
+        left: 1rem;
+      }
+      #userslist {
+        position: fixed;
+        top: 6rem;
+        left: 1rem;
+      }
+      .username-btn {
+        font-size: 16px; /* Adjust font size as needed */
+        margin-right: 5px; /* Adjust spacing between buttons */
+      }
+
+      /* Style for action buttons (Make Admin, Remove User) */
+      .action-btn {
+        font-size: 14px; /* Adjust font size as needed */
+        margin-right: 5px; /* Adjust spacing between buttons */
+        color: #333;
+        background-color: #e8edf3;
+      }
+
+      /* Clearfix to ensure buttons appear on the same line */
+      .clearfix::after {
+        content: "";
+        clear: both;
+        display: table;
+      }
+      #add-user-input {
+        position: fixed;
+        bottom: 6rem;
+        left: 2rem;
+        width: 10%;
+      }
+      #username-input {
+        width: 65%;
+      }
+      #searchuser {
+        background-color: #e8edf3;
+        color: #333;
+      }
+      #searchResults {
+        position: absolute;
+        top: calc(100% + 10px); /* Position it below the input */
+        left: 0;
+        background-color: white;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 10px;
+        width: calc(100% - 20px);
+        max-height: 200px;
+        overflow-y: auto;
+        display: none; /* Initially hidden */
+      }
+
+      #searchResults.visible {
+        display: block; /* Show when there are results */
+      }
+
+      /* Style for each user item in the results */
+      .userItem {
+        cursor: pointer;
+        padding: 5px;
+      }
+
+      .userItem:hover {
+        background-color: #f0f0f0;
       }
     </style>
   </head>
   <body>
-    <h1>Group Chat app</h1>
-
+    <h2>Group Chat app</h2>
+    <h2 id="groupname"></h2>
     <p>You joined</p>
     <div id="displaymessages"></div>
 
@@ -89,9 +177,13 @@
 
       <div id="invitationlink"></div>
 
-      <!-- <button id="hideinvite">Hide invite link</button> -->
+      <button id="hideinvite">Hide invite link</button>
     </aside>
 
+    <div id="isadmin"></div>
+
+    <h3>User list</h3>
+    <div id="userslist"></div>
     <footer>
       <form>
         <input type="text" placeholder="Enter your message" id="inputmessage" />
@@ -99,9 +191,30 @@
       </form>
     </footer>
 
+    <div id="add-user-input">
+      <input type="text" placeholder="search users...." id="username-input" />
+      <button id="searchuser">search user</button>
+      <div id="searchResults"></div>
+      <button id="add-user-button">Add User</button>
+    </div>
+
+    <p id="displayerror"></p>
+
     <script>
+      document.getElementById("displayerror").innerHTML = "";
+
+      window.addEventListener("load", (event) => {
+        console.log("page fully loaded");
+        document.getElementById("displayerror").innerHTML = "";
+      });
       const urls = window.location.href.split("/");
-      const groupid = urls[urls.length - 1];
+      console.log(urls);
+      const groupid = urls[urls.length - 2];
+      const groupname = urls[urls.length - 1];
+
+      document.getElementById(
+        "groupname"
+      ).innerHTML = `Group name : ${groupname}`;
 
       const token = localStorage.getItem("token");
       let messageid = 0;
@@ -110,14 +223,16 @@
 
       const fetchAndDisplayMessages = () => {
         axios
-          .post(`http://localhost:3000/group/chats/${messageid}${groupid}`, {
+          .post(`http://localhost:3000/group/chats/${messageid}/${groupid}`, {
             Authorization: token,
           })
           .then((res) => {
+            const thisgroupusers = res.data.thisgroupusers;
+            console.log("res.data", res.data);
+
             console.log("in fetch and display functions");
             let localMessages = localStorage.getItem("localMessages");
             localMessages = JSON.parse(localMessages);
-            console.log(res.data);
             const allMessages = res.data.allMessages;
             document.getElementById("displaymessages").innerHTML = "";
 
@@ -169,7 +284,7 @@
         const token = localStorage.getItem("token");
 
         axios
-          .post(`/group/chat/${groupid}`, {
+          .post(`/group/chat/${groupid}/${groupname}`, {
             message,
             Authorization: token,
           })
@@ -197,13 +312,150 @@
         invitationlink.style.right = "2rem";
       });
 
-      // document
-      //   .getElementById("hideinvitelink")
-      //   .addEventListener("click", (e) => {
-      //     const invitationlink = document.getElementById("invitationlink");
+      document.getElementById("hideinvite").addEventListener("click", (e) => {
+        const invitationlink = document.getElementById("invitationlink");
 
-      //     invitationlink.style.visibility = "hidden";
-      //   });
+        invitationlink.innerHTML = "";
+      });
+
+      axios
+        .post(`/group/getusers/${groupid}`, { Authorization: token })
+        .then((res) => {
+          console.log(res.data);
+
+          const isAdmin = res.data.isadmin;
+
+          if (isAdmin) {
+            console.log("am i admin");
+            document.getElementById("isadmin").innerHTML = "Admin";
+            const usersList = document.getElementById("userslist");
+            usersList.innerHTML = ""; // Clear previous content
+
+            const thisGroupUsers = res.data.thisgroupsusers;
+
+            thisGroupUsers.forEach((user) => {
+              const userDiv = document.createElement("div");
+
+              // Create username button
+              const userLink = document.createElement("button");
+              userLink.className = "username-btn";
+              userLink.innerText = user.username;
+              userDiv.appendChild(userLink);
+
+              userDiv.appendChild(document.createElement("br"));
+              // Create "Remove User" button
+              const removeButton = document.createElement("button");
+              removeButton.className = "action-btn";
+              removeButton.innerText = "Remove User";
+              userDiv.appendChild(removeButton);
+
+              removeButton.addEventListener("click", () => {
+                axios
+                  .get(`/user/removeuser/${groupid}/${user.id}`)
+                  .then((res) => {})
+                  .catch((err) => {});
+              });
+
+              // Create "Make Admin" button
+              const makeAdminButton = document.createElement("button");
+              makeAdminButton.className = "action-btn";
+              makeAdminButton.innerText = "Make Admin";
+              userDiv.appendChild(makeAdminButton);
+
+              axios
+                .get(`/user/makeadmin/${groupid}/${user.id}`)
+                .then((res) => {
+                  console.log("success");
+                  // document.getElementById(
+                  //   "displayerror"
+                  // ).innerHTML = `${res.data.message}`;
+                })
+                .catch((err) => {
+                  console.log("err");
+                  document.getElementById(
+                    "displayerror"
+                  ).innerHTML = `${err.message}`;
+                });
+              usersList.appendChild(userDiv);
+            });
+          } else {
+            document.getElementById("isadmin").innerHTML = "Not an Admin";
+
+            const adduserinput = document.getElementById("add-user-input");
+            adduserinput.style.visibility = "hidden";
+          }
+        })
+
+        .catch((err) => {
+          console.log(err);
+        });
+
+      function displaysearchusers() {
+        const searchInput = document.getElementById("username-input").value;
+        console.log("iam in searching users and its working");
+        axios
+          .post(`/user/searchusers`, {
+            query: searchInput,
+          })
+          .then((res) => {
+            console.log("search users", res.data);
+            displaySearchResults(res.data.users);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
+
+      document.getElementById("searchuser").addEventListener("click", () => {
+        displaysearchusers();
+      });
+
+      function displaySearchResults(users) {
+        const searchResultsContainer = document.getElementById("searchResults");
+        searchResultsContainer.innerHTML = "";
+
+        if (users.length === 0) {
+          searchResultsContainer.innerHTML = "<p>No users found</p>";
+          searchResultsContainer.classList.remove("visible"); // Hide results container
+          return;
+        }
+
+        const userListContainer = document.createElement("ul");
+        users.forEach((user) => {
+          const userItem = document.createElement("li");
+          userItem.classList.add("userItem");
+          userItem.textContent = `${user.username}`;
+          userListContainer.appendChild(userItem);
+        });
+
+        searchResultsContainer.appendChild(userListContainer);
+        searchResultsContainer.classList.add("visible"); // Show results container
+      }
+
+      function clearSearchResults() {
+        document.getElementById("searchResults").innerHTML = "";
+        document.getElementById("searchResults").classList.remove("visible");
+      }
+
+      // Add event listener to clear search results when clicking anywhere on the page
+      document.body.addEventListener("click", () => {
+        clearSearchResults();
+      });
+
+      document
+        .getElementById("add-user-button")
+        .addEventListener("click", () => {
+          const username = document.getElementById("username-input").value;
+
+          axios
+            .post(`/user/adduser/${groupid}`, { username })
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        });
     </script>
   </body>
 </html>

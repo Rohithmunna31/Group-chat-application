@@ -148,7 +148,7 @@
           res.data.groups.forEach((group) => {
             const link = document.createElement("a");
             link.textContent = group.groupname;
-            link.href = `/group/chat/${group.id}`;
+            link.href = `/group/chat/${group.id}/${group.groupname}`;
             link.classList.add("group-link");
             groupslist.appendChild(link);
             groupslist.appendChild(document.createElement("br"));

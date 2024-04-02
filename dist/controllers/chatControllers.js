@@ -41,20 +41,24 @@ chats.postUserchats = (req, res) => __awaiter(void 0, void 0, void 0, function* 
 });
 chats.postGroupchats = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        let groupid = parseInt(req.params.groupid);
         let messageid = parseInt(req.params.messageid);
         if (!messageid) {
             messageid = 0;
         }
         console.log(messageid);
         const allMessages = yield messages_1.default.findAll({
-            include: {
-                model: user_1.default,
-                attributes: ["username"],
-            },
+            include: [
+                {
+                    model: user_1.default,
+                    attributes: ["username"],
+                },
+            ],
             where: {
                 id: {
                     [sequelize_1.Op.gt]: messageid,
                 },
+                usergroupId: groupid,
             },
         });
         allMessages.map((message) => {
@@ -63,7 +67,10 @@ chats.postGroupchats = (req, res) => __awaiter(void 0, void 0, void 0, function*
             }
             return message;
         });
-        return res.status(200).json({ success: true, allMessages: allMessages });
+        return res.status(200).json({
+            success: true,
+            allMessages: allMessages,
+        });
     }
     catch (err) {
         console.log(err);

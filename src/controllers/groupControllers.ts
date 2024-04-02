@@ -13,6 +13,8 @@ import { Request, Response } from "express";
 import dotenv from "dotenv";
 import { group } from "console";
 import { where } from "sequelize";
+import Groups from "../models/usergroups";
+import { Op } from "sequelize";
 
 const groups: any = {};
 
@@ -26,6 +28,7 @@ groups.postGroup = async (req: Request, res: Response) => {
     console.log(thisGroup.dataValues.id);
 
     await usergrouprelation.create({
+      selfGranted: true,
       UserId: req.user.id,
       usergroupId: thisGroup.dataValues.id,
     });
@@ -129,6 +132,59 @@ groups.postJoingroup = async (req: Request, res: Response) => {
     return res
       .status(400)
       .json({ success: true, message: "an error occured loggin in" });
+  }
+};
+
+groups.getUsers = async (req: Request, res: Response) => {
+  console.log("in getting users");
+
+  try {
+    const groupid = req.params.groupid;
+
+    const isadmin = await usergrouprelation.findOne({
+      where: {
+        UserId: req.user.id,
+        usergroupId: groupid,
+      },
+    });
+    console.log("isadmin", isadmin);
+
+    const thisgroupsusers = await users.findAll({
+      include: [
+        {
+          model: Groups,
+          where: {
+            id: groupid,
+          },
+        },
+      ],
+    });
+
+    const othergroupusers = await users.findAll({
+      include: [
+        {
+          model: Groups,
+          where: {
+            id: {
+              [Op.not]: groupid,
+            },
+          },
+        },
+      ],
+    });
+
+    console.log(isadmin);
+
+    res.status(200).json({
+      success: true,
+      isadmin: isadmin?.dataValues.selfGranted,
+      thisgroupsusers: thisgroupsusers,
+      othergroupusers: othergroupusers,
+    });
+  } catch (err) {
+    console.log(err);
+
+    res.status(400).json({ success: false });
   }
 };
 

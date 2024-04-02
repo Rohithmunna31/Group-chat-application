@@ -6,9 +6,12 @@ import bcrpyt from "bcrypt";
 
 import { Request, Response } from "express";
 
+import { Op } from "sequelize";
+
 import dotenv from "dotenv";
 
 import jwt from "jsonwebtoken";
+import usergrouprelation from "../models/usergrouprelation";
 
 dotenv.config();
 
@@ -104,6 +107,131 @@ user.postUserlogin = async (req: Request, res: Response) => {
 
 user.getUserhome = (req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, "../public/userhome.html"));
+};
+
+user.removeUser = async (req: Request, res: Response) => {
+  try {
+    const userid = req.params.userid;
+    const groupid = req.params.groupid;
+
+    const thisuser = await usergrouprelation.findOne({
+      where: {
+        UserId: userid,
+        usergroupId: groupid,
+      },
+    });
+
+    if (thisuser) {
+      await usergrouprelation.destroy({
+        where: {
+          UserId: userid,
+          usergroupId: groupid,
+        },
+      });
+    } else {
+      return res
+        .status(200)
+        .json({ success: false, message: "user is removed from group" });
+    }
+    return res.status(200).json({ success: true });
+  } catch (err) {
+    console.log(err);
+    return res
+      .status(400)
+      .json({ success: false, message: "error making admin" });
+  }
+};
+
+user.makeAdmin = async (req: Request, res: Response) => {
+  try {
+    const userid = req.params.userid;
+    const groupid = req.params.groupid;
+
+    await usergrouprelation.destroy({
+      where: {
+        UserId: userid,
+        usergroupId: groupid,
+      },
+    });
+
+    const createdrelation = await usergrouprelation.create({
+      selfGranted: true,
+      UserId: userid,
+      usergroupId: groupid,
+    });
+    console.log(createdrelation);
+
+    res.status(200).json({ success: true });
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({ success: false });
+  }
+};
+
+user.searchUsers = async (req: Request, res: Response) => {
+  try {
+    const query: string = req.body.query.toLowerCase();
+
+    const foundUsers = await users.findAll({
+      where: {
+        [Op.or]: [
+          { username: { [Op.like]: `%${query}%` } },
+          { email: { [Op.like]: `%${query}%` } },
+        ],
+      },
+    });
+
+    // Return the found users
+    res.status(200).json({ success: true, users: foundUsers });
+  } catch (error) {
+    console.error("Error searching for users:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+user.addUser = async (req: Request, res: Response) => {
+  try {
+    const groupid = req.params.groupid;
+    const username = req.body.username;
+
+    const userdetails = await users.findOne({
+      where: {
+        username: username,
+      },
+    });
+
+    if (userdetails) {
+      const addUser = await usergrouprelation.findOne({
+        where: {
+          UserId: userdetails.dataValues.id,
+          usergroupId: groupid,
+        },
+      });
+
+      if (!addUser) {
+        console.log("in adding user to the group");
+
+        await usergrouprelation.create({
+          UserId: userdetails.dataValues.id,
+          usergroupId: groupid,
+        });
+
+        return res
+          .status(200)
+          .json({ success: true, message: "added user to the group" });
+      } else {
+        return res
+          .status(400)
+          .json({ success: false, message: "user already in group" });
+      }
+    } else {
+      return res.status(400).json({ success: false, message: "" });
+    }
+  } catch (err) {
+    return res
+      .status(400)
+      .json({ success: false, message: "an error occured" });
+  }
 };
 
 function generateacesstoken(id: number, username: string) {

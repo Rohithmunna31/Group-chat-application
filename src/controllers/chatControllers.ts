@@ -4,11 +4,13 @@ import messages from "../models/messages";
 
 import users from "../models/user";
 
-import { Op } from "sequelize";
+import { Model, Op, where } from "sequelize";
 
 import { Request, Response } from "express";
 
 import dotenv from "dotenv";
+import usergrouprelation from "../models/usergrouprelation";
+import Groups from "../models/usergroups";
 
 dotenv.config();
 
@@ -39,6 +41,7 @@ chats.postUserchats = async (req: Request, res: Response) => {
 
 chats.postGroupchats = async (req: Request, res: Response) => {
   try {
+    let groupid = parseInt(req.params.groupid);
     let messageid = parseInt(req.params.messageid);
 
     if (!messageid) {
@@ -48,14 +51,17 @@ chats.postGroupchats = async (req: Request, res: Response) => {
     console.log(messageid);
 
     const allMessages: any = await messages.findAll({
-      include: {
-        model: users,
-        attributes: ["username"],
-      },
+      include: [
+        {
+          model: users,
+          attributes: ["username"],
+        },
+      ],
       where: {
         id: {
           [Op.gt]: messageid,
         },
+        usergroupId: groupid,
       },
     });
 
@@ -66,7 +72,10 @@ chats.postGroupchats = async (req: Request, res: Response) => {
       return message;
     });
 
-    return res.status(200).json({ success: true, allMessages: allMessages });
+    return res.status(200).json({
+      success: true,
+      allMessages: allMessages,
+    });
   } catch (err) {
     console.log(err);
 

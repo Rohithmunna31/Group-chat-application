@@ -16,6 +16,12 @@ router.post("/login", userController.postUserlogin);
 
 router.get("/home", userController.getUserhome);
 
-// router.post("/home", userController.postUserhome);
+router.get("/removeuser/:groupid/:userid", userController.removeUser);
+
+router.get("/makeadmin/:groupid/:userid", userController.makeAdmin);
+
+router.post("/searchusers", userController.searchUsers);
+
+router.post("/adduser/:groupid", userController.addUser);
 
 export default router;

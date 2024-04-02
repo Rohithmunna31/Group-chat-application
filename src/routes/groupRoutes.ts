@@ -18,8 +18,16 @@ router.post(
   groupControllers.getGroups
 );
 
+router.post(
+  "/getusers/:groupid",
+  middleWare.authentication,
+  groupControllers.getUsers
+);
+
 router.get("/joingroup/:groupid", groupControllers.getJoingroup);
 
 router.post("/joingroup/:groupid", groupControllers.postJoingroup);
+
+
 
 export default router;

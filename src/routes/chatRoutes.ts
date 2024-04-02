@@ -6,16 +6,16 @@ import middleWare from "../util/authentication";
 
 const router = Router();
 
-router.get("/chat/:groupid", chatControllers.getUserChat);
+router.get("/chat/:groupid/:groupname", chatControllers.getUserChat);
 
 router.post(
-  "/chat/:groupid",
+  "/chat/:groupid/:groupname",
   middleWare.authentication,
   chatControllers.postUserchats
 );
 
 router.post(
-  "/chats/:messageid",
+  "/chats/:messageid/:groupid",
   middleWare.authentication,
   chatControllers.postGroupchats
 );

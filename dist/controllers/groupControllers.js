@@ -17,6 +17,8 @@ const user_1 = __importDefault(require("../models/user"));
 const usergroups_1 = __importDefault(require("../models/usergroups"));
 const usergrouprelation_1 = __importDefault(require("../models/usergrouprelation"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const usergroups_2 = __importDefault(require("../models/usergroups"));
+const sequelize_1 = require("sequelize");
 const groups = {};
 groups.postGroup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -26,6 +28,7 @@ groups.postGroup = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         });
         console.log(thisGroup.dataValues.id);
         yield usergrouprelation_1.default.create({
+            selfGranted: true,
             UserId: req.user.id,
             usergroupId: thisGroup.dataValues.id,
         });
@@ -119,6 +122,52 @@ groups.postJoingroup = (req, res) => __awaiter(void 0, void 0, void 0, function*
         return res
             .status(400)
             .json({ success: true, message: "an error occured loggin in" });
+    }
+});
+groups.getUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("in getting users");
+    try {
+        const groupid = req.params.groupid;
+        const isadmin = yield usergrouprelation_1.default.findOne({
+            where: {
+                UserId: req.user.id,
+                usergroupId: groupid,
+            },
+        });
+        console.log("isadmin", isadmin);
+        const thisgroupsusers = yield user_1.default.findAll({
+            include: [
+                {
+                    model: usergroups_2.default,
+                    where: {
+                        id: groupid,
+                    },
+                },
+            ],
+        });
+        const othergroupusers = yield user_1.default.findAll({
+            include: [
+                {
+                    model: usergroups_2.default,
+                    where: {
+                        id: {
+                            [sequelize_1.Op.not]: groupid,
+                        },
+                    },
+                },
+            ],
+        });
+        console.log(isadmin);
+        res.status(200).json({
+            success: true,
+            isadmin: isadmin === null || isadmin === void 0 ? void 0 : isadmin.dataValues.selfGranted,
+            thisgroupsusers: thisgroupsusers,
+            othergroupusers: othergroupusers,
+        });
+    }
+    catch (err) {
+        console.log(err);
+        res.status(400).json({ success: false });
     }
 });
 exports.default = groups;
