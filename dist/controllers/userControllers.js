@@ -25,7 +25,6 @@ user.getUsersignup = (req, res) => {
     res.sendFile(path_1.default.join(__dirname, "../public/signup.html"));
 };
 user.postUsersignup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(req.body);
     try {
         const find = yield user_1.default.findOne({ where: { email: req.body.email } });
         if (find) {
@@ -51,7 +50,8 @@ user.postUsersignup = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         }));
     }
     catch (err) {
-        console.log(err);
+        // console.log(err);
+        console.log("catched err");
         return res.status(400).json({ success: false, message: "signup failed" });
     }
     res.status(200).json({ success: true, message: "signup successfull" });
@@ -93,7 +93,7 @@ user.postUserlogin = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         }
     }
     catch (err) {
-        console.log(err);
+        // console.log(err);
         console.log("in try catch error");
         return res
             .status(400)
@@ -129,7 +129,7 @@ user.removeUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         return res.status(200).json({ success: true });
     }
     catch (err) {
-        console.log(err);
+        // console.log(err);
         return res
             .status(400)
             .json({ success: false, message: "error making admin" });
@@ -150,7 +150,6 @@ user.makeAdmin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             UserId: userid,
             usergroupId: groupid,
         });
-        console.log(createdrelation);
         res.status(200).json({ success: true });
     }
     catch (err) {

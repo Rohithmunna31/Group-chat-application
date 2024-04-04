@@ -22,7 +22,6 @@ user.getUsersignup = (req: Request, res: Response) => {
 };
 
 user.postUsersignup = async (req: Request, res: Response) => {
-  console.log(req.body);
   try {
     const find = await users.findOne({ where: { email: req.body.email } });
 
@@ -49,7 +48,9 @@ user.postUsersignup = async (req: Request, res: Response) => {
       }
     });
   } catch (err) {
-    console.log(err);
+    // console.log(err);
+    console.log("catched err");
+    
 
     return res.status(400).json({ success: false, message: "signup failed" });
   }
@@ -96,7 +97,7 @@ user.postUserlogin = async (req: Request, res: Response) => {
         .json({ success: true, message: "User not found " });
     }
   } catch (err) {
-    console.log(err);
+    // console.log(err);
     console.log("in try catch error");
 
     return res
@@ -135,7 +136,7 @@ user.removeUser = async (req: Request, res: Response) => {
     }
     return res.status(200).json({ success: true });
   } catch (err) {
-    console.log(err);
+    // console.log(err);
     return res
       .status(400)
       .json({ success: false, message: "error making admin" });
@@ -159,7 +160,6 @@ user.makeAdmin = async (req: Request, res: Response) => {
       UserId: userid,
       usergroupId: groupid,
     });
-    console.log(createdrelation);
 
     res.status(200).json({ success: true });
   } catch (err) {

@@ -46,7 +46,6 @@ chats.postGroupchats = (req, res) => __awaiter(void 0, void 0, void 0, function*
         if (!messageid) {
             messageid = 0;
         }
-        console.log(messageid);
         const allMessages = yield messages_1.default.findAll({
             include: [
                 {

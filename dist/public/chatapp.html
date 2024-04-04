@@ -4,6 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.1/axios.min.js"></script>
+    <script
+      src="https://cdn.socket.io/4.7.5/socket.io.min.js"
+      integrity="sha384-2huaZvOR9iDzHqslqwpR87isEmrfxqyWOF7hr7BY6KG0+hVKLoEXMPUJw3ynWuhO"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"></script>
+
     <title>Group chat application</title>
     <!-- <link rel="stylesheet" href="chatapp.css" /> -->
     <style>
@@ -201,16 +208,37 @@
     <p id="displayerror"></p>
 
     <script>
+      const urls = window.location.href.split("/");
+      console.log(urls);
+      const groupid = urls[urls.length - 2];
+      const groupname = urls[urls.length - 1];
+      // const { server } = require("socket.io-client");
+      const socket = io("http://localhost:8080");
+
+      socket.on("connect", () => {
+        console.log("displaying messages from socket id");
+      });
+
+      socket.on("join-room", groupid, (message) => {
+        displaymessage(message);
+      });
+
+      socket.on("recieve-message", (num) => {
+        displaymessage(num);
+      });
+
+      function displaymessage(num) {
+        const numelement = document.createElement("p");
+        numelement.innerHTML = num;
+        document.getElementById("displaymessages").appendChild(numelement);
+      }
+
       document.getElementById("displayerror").innerHTML = "";
 
       window.addEventListener("load", (event) => {
         console.log("page fully loaded");
         document.getElementById("displayerror").innerHTML = "";
       });
-      const urls = window.location.href.split("/");
-      console.log(urls);
-      const groupid = urls[urls.length - 2];
-      const groupname = urls[urls.length - 1];
 
       document.getElementById(
         "groupname"
@@ -274,7 +302,7 @@
             }
           });
       };
-      // setInterval(fetchAndDisplayMessages, 1000);
+
       fetchAndDisplayMessages();
 
       document.getElementById("sendmessage").addEventListener("click", (e) => {
@@ -282,6 +310,8 @@
 
         const message = document.getElementById("inputmessage").value;
         const token = localStorage.getItem("token");
+
+        socket.emit("send-message", message, groupid);
 
         axios
           .post(`/group/chat/${groupid}/${groupname}`, {
@@ -291,8 +321,7 @@
           .then((res) => {
             document.getElementById(
               "displaymessages"
-            ).innerHTML += `<p> you : ${res.data.message} <p/>`;
-            console.log(res);
+            ).innerHTML += `<p> ${res.data.message} <p/>`;
           })
           .catch((err) => {
             console.log(err);

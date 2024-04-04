@@ -1,24 +1,21 @@
 import express from "express";
-
+const io = require("socket.io")(8080, {
+  cors: {
+    origin: ["http://localhost:3000", "https://admin.socket.io/"],
+  },
+});
 import bodyParser from "body-parser";
-
 import userRoutes from "./routes/userRoutes";
-
 import chatRoutes from "./routes/chatRoutes";
-
 import groupRoutes from "./routes/groupRoutes";
-
 import sequelize from "./util/database";
-
 import cors from "cors";
-
 import user from "./models/user";
-
 import message from "./models/messages";
-
 import Group from "./models/usergroups";
-
 import usergrouprelation from "./models/usergrouprelation";
+import { Socket } from "socket.io";
+import { instrument } from "@socket.io/admin-ui";
 
 const app = express();
 
@@ -37,6 +34,26 @@ app.get("/", (req, res) => {
     .status(200)
     .json({ success: "true", message: "Successfully done running typescript" });
 });
+
+io.on("connection", (socket: any) => {
+  console.log("iam in on websockets.io connection");
+
+  socket.on("send-message", (message: string, groupid: number) => {
+    if (!groupid) {
+      socket.broadcast.emit("recieve-message", message);
+    } else {
+      socket.to(groupid).emit("recieve-message", message);
+      console.log("message sent to that particular group id");
+    }
+    console.log("This is custom event", message);
+  });
+  socket.on("join-room", (groupid: number, cb: CallableFunction) => {
+    socket.join(groupid);
+    cb(`joined ${groupid}`);
+  });
+});
+
+instrument(io, { auth: false });
 
 user.hasMany(message);
 message.belongsTo(user);

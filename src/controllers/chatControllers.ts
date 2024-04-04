@@ -48,8 +48,6 @@ chats.postGroupchats = async (req: Request, res: Response) => {
       messageid = 0;
     }
 
-    console.log(messageid);
-
     const allMessages: any = await messages.findAll({
       include: [
         {

@@ -25,7 +25,6 @@ groups.postGroup = async (req: Request, res: Response) => {
     const thisGroup = await Group.create({
       groupname: groupname,
     });
-    console.log(thisGroup.dataValues.id);
 
     await usergrouprelation.create({
       selfGranted: true,
@@ -53,8 +52,6 @@ groups.getGroups = async (req: Request, res: Response) => {
         },
       ],
     });
-
-    console.log(getUsergroups);
 
     res.status(200).json({ success: true, groups: getUsergroups });
   } catch (err) {
@@ -147,7 +144,6 @@ groups.getUsers = async (req: Request, res: Response) => {
         usergroupId: groupid,
       },
     });
-    console.log("isadmin", isadmin);
 
     const thisgroupsusers = await users.findAll({
       include: [
@@ -173,7 +169,6 @@ groups.getUsers = async (req: Request, res: Response) => {
       ],
     });
 
-    console.log(isadmin);
 
     res.status(200).json({
       success: true,

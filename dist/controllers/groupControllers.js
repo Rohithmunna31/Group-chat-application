@@ -26,7 +26,6 @@ groups.postGroup = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const thisGroup = yield usergroups_1.default.create({
             groupname: groupname,
         });
-        console.log(thisGroup.dataValues.id);
         yield usergrouprelation_1.default.create({
             selfGranted: true,
             UserId: req.user.id,
@@ -52,7 +51,6 @@ groups.getGroups = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                 },
             ],
         });
-        console.log(getUsergroups);
         res.status(200).json({ success: true, groups: getUsergroups });
     }
     catch (err) {
@@ -134,7 +132,6 @@ groups.getUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 usergroupId: groupid,
             },
         });
-        console.log("isadmin", isadmin);
         const thisgroupsusers = yield user_1.default.findAll({
             include: [
                 {
@@ -157,7 +154,6 @@ groups.getUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 },
             ],
         });
-        console.log(isadmin);
         res.status(200).json({
             success: true,
             isadmin: isadmin === null || isadmin === void 0 ? void 0 : isadmin.dataValues.selfGranted,
