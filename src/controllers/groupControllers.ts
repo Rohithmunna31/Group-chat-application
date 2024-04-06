@@ -1,5 +1,11 @@
 import path from "path";
 
+import AWS from "aws-sdk";
+
+import fs from "fs";
+
+import files from "../models/files";
+
 import users from "../models/user";
 
 import Group from "../models/usergroups";
@@ -11,10 +17,13 @@ import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 
 import dotenv from "dotenv";
+
+dotenv.config();
 import { group } from "console";
 import { where } from "sequelize";
 import Groups from "../models/usergroups";
 import { Op } from "sequelize";
+import { errorMessage } from "aws-sdk/clients/datapipeline";
 
 const groups: any = {};
 
@@ -53,7 +62,11 @@ groups.getGroups = async (req: Request, res: Response) => {
       ],
     });
 
-    res.status(200).json({ success: true, groups: getUsergroups });
+    res.status(200).json({
+      success: true,
+      groups: getUsergroups,
+      username: req.user.username,
+    });
   } catch (err) {
     console.log(err);
 
@@ -169,7 +182,6 @@ groups.getUsers = async (req: Request, res: Response) => {
       ],
     });
 
-
     res.status(200).json({
       success: true,
       isadmin: isadmin?.dataValues.selfGranted,
@@ -180,6 +192,76 @@ groups.getUsers = async (req: Request, res: Response) => {
     console.log(err);
 
     res.status(400).json({ success: false });
+  }
+};
+
+groups.uploadfile = async (req: Request, res: Response) => {
+  try {
+    if (!req.file) {
+      return res
+        .status(400)
+        .json({ success: false, message: "cannot get file" });
+    }
+
+    console.log(req.file);
+
+    const groupid = req.params.groupid;
+    const username = req.params.username;
+
+    const userDetails = await users.findOne({
+      where: { username: username },
+    });
+
+    AWS.config.update({
+      region: "ap-southeast-2",
+      accessKeyId: process.env.AWS_IAM_USER_KEY,
+      secretAccessKey: process.env.AWS_IAM_USER_SECRET,
+    });
+    const imagePath = req.file.path;
+    const contentType = imagePath.endsWith(".jpg")
+      ? "image/jpeg"
+      : imagePath.endsWith(".png")
+      ? "image/png"
+      : "image/jpeg";
+
+    const s3 = new AWS.S3();
+    const uploadParams: any = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: `file${groupid}${username}/${new Date().toLocaleString()}`,
+      Body: fs.createReadStream(req.file.path),
+      ACL: "public-read",
+      ContentType: contentType,
+    };
+
+    async function uploadtos3(uploadParams: any): Promise<string> {
+      return new Promise((resolve, reject) => {
+        s3.upload(uploadParams, (err: Error, data: any) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(data.Location);
+          }
+        });
+      });
+    }
+
+    const fileUrl: string = await uploadtos3(uploadParams);
+    console.log("File uploaded successfully. URL:", fileUrl);
+
+    console.log("this is fileUrl2", fileUrl);
+    await files.create({
+      fileUrl: fileUrl,
+      usergroupId: groupid,
+      UserId: userDetails?.dataValues.id,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "upload done successfully",
+      fileUrl: fileUrl,
+    });
+  } catch (err) {
+    return res.status(400).json({ success: true, message: "failed uploading" });
   }
 };
 

@@ -139,7 +139,7 @@
           Authorization: token,
         })
         .then((res) => {
-          console.log(res.data.groups);
+          console.log(res.data.username);
 
           const groupslist = document.getElementById("groupslist");
 
@@ -148,7 +148,7 @@
           res.data.groups.forEach((group) => {
             const link = document.createElement("a");
             link.textContent = group.groupname;
-            link.href = `/group/chat/${group.id}/${group.groupname}`;
+            link.href = `/group/chat/${group.id}/${group.groupname}/${res.data.username}`;
             link.classList.add("group-link");
             groupslist.appendChild(link);
             groupslist.appendChild(document.createElement("br"));

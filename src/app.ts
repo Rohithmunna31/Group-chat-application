@@ -14,6 +14,7 @@ import user from "./models/user";
 import message from "./models/messages";
 import Group from "./models/usergroups";
 import usergrouprelation from "./models/usergrouprelation";
+import files from "./models/files";
 import { Socket } from "socket.io";
 import { instrument } from "@socket.io/admin-ui";
 
@@ -51,6 +52,10 @@ io.on("connection", (socket: any) => {
     socket.join(groupid);
     cb(`joined ${groupid}`);
   });
+
+  socket.on("new-user", (username: string, room: number) => {
+    socket.to(room).emit("chat-message", { username: username });
+  });
 });
 
 instrument(io, { auth: false });
@@ -63,6 +68,12 @@ Group.hasMany(message);
 
 user.belongsToMany(Group, { through: usergrouprelation });
 Group.belongsToMany(user, { through: usergrouprelation });
+
+files.belongsTo(user);
+user.hasMany(files);
+
+files.belongsTo(Group);
+Group.hasMany(files);
 
 sequelize
   .sync()

@@ -171,6 +171,14 @@
       .userItem:hover {
         background-color: #f0f0f0;
       }
+      img {
+        max-width: 10rem; /* Adjust the maximum width as needed */
+        max-height: 10rem; /* Adjust the maximum height as needed */
+      }
+      #displaymessages {
+        max-height: 300px; /* Adjust the maximum height as needed */
+        overflow-y: auto; /* Enable vertical scrolling */
+      }
     </style>
   </head>
   <body>
@@ -195,6 +203,7 @@
       <form>
         <input type="text" placeholder="Enter your message" id="inputmessage" />
         <button id="sendmessage">Send</button>
+        <input type="file" id="input" />
       </form>
     </footer>
 
@@ -210,8 +219,9 @@
     <script>
       const urls = window.location.href.split("/");
       console.log(urls);
-      const groupid = urls[urls.length - 2];
-      const groupname = urls[urls.length - 1];
+      const groupid = urls[urls.length - 3];
+      const groupname = urls[urls.length - 2];
+      const username = urls[urls.length - 1];
       // const { server } = require("socket.io-client");
       const socket = io("http://localhost:8080");
 
@@ -223,13 +233,17 @@
         displaymessage(message);
       });
 
+      socket.on("new-user", username, groupid, () => {
+        displaymessage(`${username} : joined`);
+      });
+
       socket.on("recieve-message", (num) => {
         displaymessage(num);
       });
 
-      function displaymessage(num) {
+      function displaymessage(message) {
         const numelement = document.createElement("p");
-        numelement.innerHTML = num;
+        numelement.innerHTML = `$ ${message}`;
         document.getElementById("displaymessages").appendChild(numelement);
       }
 
@@ -438,6 +452,32 @@
       document.getElementById("searchuser").addEventListener("click", () => {
         displaysearchusers();
       });
+
+      const fileInput = document.getElementById("input");
+      fileInput.onchange = (e) => {
+        console.log("iam in fileinput onchange");
+        const selectedFile = fileInput.files[0];
+
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+        axios
+          .post(`/group/upload-file/${groupid}/${username}`, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          })
+          .then((response) => {
+            const displaymessages = document.getElementById("displaymessages");
+
+            const imgElement = document.createElement("img");
+            imgElement.src = response.data.fileUrl;
+            displaymessages.appendChild(imgElement);
+            console.log("File uploaded successfully:", response.data);
+          })
+          .catch((error) => {
+            console.error("Error uploading file:", error);
+          });
+      };
 
       function displaySearchResults(users) {
         const searchResultsContainer = document.getElementById("searchResults");

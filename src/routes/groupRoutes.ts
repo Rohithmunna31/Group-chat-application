@@ -4,6 +4,11 @@ import groupControllers from "../controllers/groupControllers";
 
 import middleWare from "../util/authentication";
 
+import { RequestHandler } from "express";
+import multer from "multer";
+
+const upload = multer({ dest: "uploads/" });
+
 const router = Router();
 
 router.post(
@@ -24,10 +29,14 @@ router.post(
   groupControllers.getUsers
 );
 
+router.post(
+  "/upload-file/:groupid/:username",
+  upload.single("file"),
+  groupControllers.uploadfile
+);
+
 router.get("/joingroup/:groupid", groupControllers.getJoingroup);
 
 router.post("/joingroup/:groupid", groupControllers.postJoingroup);
-
-
 
 export default router;

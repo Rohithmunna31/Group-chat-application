@@ -19,6 +19,7 @@ const user_1 = __importDefault(require("./models/user"));
 const messages_1 = __importDefault(require("./models/messages"));
 const usergroups_1 = __importDefault(require("./models/usergroups"));
 const usergrouprelation_1 = __importDefault(require("./models/usergrouprelation"));
+const files_1 = __importDefault(require("./models/files"));
 const admin_ui_1 = require("@socket.io/admin-ui");
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
@@ -39,12 +40,16 @@ io.on("connection", (socket) => {
         }
         else {
             socket.to(groupid).emit("recieve-message", message);
+            console.log("message sent to that particular group id");
         }
         console.log("This is custom event", message);
     });
     socket.on("join-room", (groupid, cb) => {
         socket.join(groupid);
         cb(`joined ${groupid}`);
+    });
+    socket.on("new-user", (username, room) => {
+        socket.to(room).emit("chat-message", { username: username });
     });
 });
 (0, admin_ui_1.instrument)(io, { auth: false });
@@ -54,6 +59,10 @@ messages_1.default.belongsTo(usergroups_1.default);
 usergroups_1.default.hasMany(messages_1.default);
 user_1.default.belongsToMany(usergroups_1.default, { through: usergrouprelation_1.default });
 usergroups_1.default.belongsToMany(user_1.default, { through: usergrouprelation_1.default });
+files_1.default.belongsTo(user_1.default);
+user_1.default.hasMany(files_1.default);
+files_1.default.belongsTo(usergroups_1.default);
+usergroups_1.default.hasMany(files_1.default);
 database_1.default
     .sync()
     .then((res) => {
